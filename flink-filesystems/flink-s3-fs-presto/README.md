@@ -20,3 +20,7 @@ mvn deploy:deploy-file \                                                        
   -DrepositoryId=your_repository_id
 
 ```
+or run this:
+```bash
+deploy.sh
+```
