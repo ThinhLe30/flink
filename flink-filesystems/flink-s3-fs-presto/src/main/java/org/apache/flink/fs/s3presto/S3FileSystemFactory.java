@@ -18,6 +18,8 @@
 
 package org.apache.flink.fs.s3presto;
 
+import com.facebook.presto.hive.s3.PrestoS3FileSystemStats;
+
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.fs.s3.common.AbstractS3FileSystemFactory;
 import org.apache.flink.fs.s3.common.writer.S3AccessHelper;
@@ -26,9 +28,11 @@ import org.apache.flink.util.FlinkRuntimeException;
 
 import com.facebook.presto.hive.s3.PrestoS3FileSystem;
 import org.apache.hadoop.fs.FileSystem;
+import org.weakref.jmx.MBeanExporter;
 
 import javax.annotation.Nullable;
 
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -85,7 +89,11 @@ public class S3FileSystemFactory extends AbstractS3FileSystemFactory {
 
     @Override
     protected org.apache.hadoop.fs.FileSystem createHadoopFileSystem() {
-        return new PrestoS3FileSystem();
+        PrestoS3FileSystem fs = new PrestoS3FileSystem();
+        PrestoS3FileSystemStats stats = PrestoS3FileSystem.getFileSystemStats();
+        MBeanExporter exporter = new MBeanExporter(ManagementFactory.getPlatformMBeanServer());
+        exporter.export("com.facebook.presto.hive.s3:name=PrestoS3FileSystemStats", stats);
+        return fs;
     }
 
     @Override
